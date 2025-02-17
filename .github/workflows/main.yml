@@ -1,0 +1,25 @@
+name: Sync Upstream
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 每天 UTC 时间 00:00 运行
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # 获取所有历史记录
+
+      - name: Sync upstream changes
+        run: |
+          git remote add upstream https://github.com/ZJU-LLMs/Foundations-of-LLMs.git
+          git fetch upstream
+          git checkout main  # 切换到你的默认分支
+          git merge upstream/main
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.AUTO_SYNC }}
